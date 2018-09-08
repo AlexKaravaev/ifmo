@@ -1,5 +1,6 @@
 import sys
 import pickle
+from graphviz import Digraph
 
 """ Programm for generating quesitons and answers"""
 
@@ -62,8 +63,26 @@ def replaceAns(tree, find, replace):
     else:
         return makeQuestion(tree[0], replaceAns(tree[1], find, replace), replaceAns(tree[2],find,replace))
 
+def count_available_langs(Q, counter):
+    global dot
+    if isQuestion(Q):
+        for i in range(1,3):
+            dot.node(str(Q),str(Q[0]))
+            if i == 2:
+                dot.edge(str(Q), str(Q[i]), label='нет')
+            else:
+                dot.edge(str(Q), str(Q[i]), label='да')
+            sub_counter = 0
+            counter += count_available_langs(Q[i], sub_counter)
+    else:
+        print(Q)
+        dot.node(str(Q),str(Q))
+        #dot.edge(str(Q),str(Q[i]))
+        return 1
+    return counter
+
 def makeNewQuestion(wrongLang):
-    global Q, tries
+    global Q, tries, dot
 
     correctLang = askQuestion("Я сдаюсь. Какой правильный ответ?")
 
@@ -78,15 +97,29 @@ def makeNewQuestion(wrongLang):
 
     Q = replaceAns(Q, wrongLang, q)
     tries = 0
+    with open('question_database', 'wb') as f:
+        pickle.dump(Q, f)
     return Q
 
-tries = 0
-Q = (makeQuestion('Этот язык является родным для более чем 1 млрд человек?',"китайский","русский"))
-q = Q
+if __name__ == '__main__':
 
-try:
-    while True:
-        ans = ifYes(getAnswer(q))
-        q = nextQuestion(q, ans)
-except KeyboardInterrupt:
-    sys.exit(0)
+    tries = 0
+
+    try:
+        with open('question_database', 'rb') as f:
+            Q = pickle.load(f)
+    except FileNotFoundError:
+        Q = (makeQuestion('Ваш язык произошел от греческого?',"английский","китайский"))
+    dot = Digraph(comment = 'Дерево вопросов')
+    print("Database: {}".format(Q))
+    print("Список доступных языков: ")
+    print("На данный момент доступно {} языков".format(count_available_langs(Q, 0)))
+    dot.render('test-output/question_tree.gv', view=True)
+    q = Q
+
+    try:
+        while True:
+            ans = ifYes(getAnswer(q))
+            q = nextQuestion(q, ans)
+    except KeyboardInterrupt:
+        sys.exit(0)
