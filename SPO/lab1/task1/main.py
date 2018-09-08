@@ -2,32 +2,45 @@ import sys
 import pickle
 from graphviz import Digraph
 
-""" Programm for generating quesitons and answers"""
+"""
+Programm for generating quesitons and answers
+REQUIREMENTS: Graphviz for visualizing graph and pickle for database of questions loading
 
+#########################################################################################
+his game tries to guess the language that you have chosen. If there is no such language,
+you can add it to the game by just going through questions
+##############################################################################################
+ """
+
+""" Making list from question arguments """
 def makeQuestion(question, correctAns, wrongAns):
     return [question, correctAns, wrongAns]
 
+""" Prints question and waits for answer """
 def askQuestion(question):
     print("\r{}".format(question))
     return sys.stdin.readline().strip().lower()
 
-#Проверить является ли вопросом,или ответом на загадку пользователя
+""" Check if candidate is question or final answer """
 def isQuestion(candidate):
     return type(candidate).__name__ == "list"
 
+""" Check if we are ready to answer or need more tries """
 def getAnswer(question):
     if isQuestion(question):
         return askQuestion(question[0])
     else:
         return askQuestion("Ты думал о {} язык?".format(question))
 
+""" Checking if "да" or "Да" was prompted """
 def ifYes(answer):
-    print(answer.lower() == "да")
     return answer.lower() == "да"
 
+""" This game is endless. Get over it"""
 def playAgain():
     return True
 
+""" If guess is right """
 def correctGuess(msg):
     global tries
 
@@ -39,6 +52,7 @@ def correctGuess(msg):
     else:
         sys.exit(0)
 
+""" Depends on answer we are or ready to answer or we are expand our question-tree """
 def nextQuestion(question, answer):
     global tries
     tries += 1
@@ -54,6 +68,7 @@ def nextQuestion(question, answer):
         else:
             return makeNewQuestion(question)
 
+""" Tree walking and changing some leafs to other trees(questions) """
 def replaceAns(tree, find, replace):
     if not isQuestion(tree):
         if tree == find:
@@ -63,6 +78,7 @@ def replaceAns(tree, find, replace):
     else:
         return makeQuestion(tree[0], replaceAns(tree[1], find, replace), replaceAns(tree[2],find,replace))
 
+""" Counting how many languages are available in the current version of the game """
 def count_available_langs(Q, counter):
     global dot
     if isQuestion(Q):
@@ -81,6 +97,7 @@ def count_available_langs(Q, counter):
         return 1
     return counter
 
+""" If the game does not know tha language, it asks you about it """
 def makeNewQuestion(wrongLang):
     global Q, tries, dot
 
@@ -101,6 +118,7 @@ def makeNewQuestion(wrongLang):
         pickle.dump(Q, f)
     return Q
 
+""" Main func with game loop, diagramm drawing and file opening """
 if __name__ == '__main__':
 
     tries = 0
