@@ -12,4 +12,9 @@ class Algo:
         start_time = timeit.default_timer()
         self.sort()
         self.exec_time = timeit.default_timer() - start_time
-        
+
+    def change_arr(self, new_arr):
+        self.array = new_arr
+
+    def get_time(self):
+        return self.exec_time
