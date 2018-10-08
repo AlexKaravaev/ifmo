@@ -23,6 +23,7 @@ class NPC(Object):
 
     def __init__(self, scene, x, y):
         super(NPC, self).__init__( scene, x, y, CELL_WIDTH, CELL_HEIGHT, NPC_TEXTURE)
+        self.moves = 0
 
     def update(self):
         events = self.scene.gameEngine.events
@@ -71,13 +72,16 @@ class NPC(Object):
         self.rectangle.top = end[1]*CELL_HEIGHT
         self.pos = end
         self.scene.addVisited(end)
-
+        self.moves += 1
 
 class Goal(Object):
 
     def __init__(self, scene, x, y):
         super(Goal, self).__init__(scene, x, y, CELL_WIDTH, CELL_HEIGHT,
                         GOAL_TEXTURE)
+
+    def render(self):
+        pygame.draw.rect(self.scene.gameEngine.screen,(255,255,255),self.rectangle)
 
 class Scene:
 
@@ -88,7 +92,8 @@ class Scene:
         self.maze = Maze(CELL_WIDTH, CELL_HEIGHT)
 
         self.goal = Goal(self,9*GRID_WIDTH,
-                               12*GRID_HEIGHT)
+                                12*GRID_HEIGHT)
+        # Uncomment for testing
         #self.goal = Goal(self, 0,20)
 
 
@@ -105,7 +110,7 @@ class Scene:
         self.__renderMaze()
         self.npc.render()
         self.goal.render()
-        pygame.draw.rect(self.gameEngine.screen,(255,255,255),self.goal.rectangle)
+
     def update(self):
         self.npc.update()
         self.__ifWin()

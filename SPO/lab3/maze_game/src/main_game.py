@@ -4,6 +4,7 @@ from music import Music
 from scene import Scene
 import random
 from gameover import GameOverScene
+import time
 
 random_data =os.urandom(4)
 seed = int.from_bytes(random_data, byteorder='big')
@@ -41,7 +42,7 @@ class Engine():
         self.bg_image = pygame.transform.scale(self.bg_image, (1280,1024))
         self.clock = pygame.time.Clock()
         self.player = Music()
-
+        self.start_time = time.time()
         self.events = []
 
         self.newGame()
@@ -57,6 +58,9 @@ class Engine():
         dt_anec = 15001
         n_of_anecdote = 0
         self.screen.blit(self.bg_image,[0,0])
+        font = pygame.font.Font(None,25)
+        font_big = pygame.font.Font(None, 100)
+
         while True:
             self.__getEvents()
             dt_music += last_time - self.clock.get_time()
@@ -64,17 +68,19 @@ class Engine():
 
 
 
+            self.time = time.time() - self.start_time
+            self.screen.blit(self.bg_image,[0,0])
+            res_str = "Время прохождения: " + str(self.time) + "\n Кол-во шагов: " + str(self.scene.npc.moves) + "\n"
+
+            blit_text(self.screen, res_str, (500,200), font)
+            blit_text(self.screen, "ANECDOTI(poka proxoidsh igru)", (500,300),font_big)
+            blit_text(self.screen, anecdots[n_of_anecdote], (500,500),font)
 
             if(abs(dt_anec) > 15000):
-                self.screen.blit(self.bg_image,[0,0])
+
                 dt_anec = 0
                 if(n_of_anecdote >= len(anecdots)):
                     n_of_anecdote = 0
-                font = pygame.font.Font(None,25)
-                text = font.render("ANECDOT",1,(0,0,0))
-                font_big = pygame.font.Font(None, 100)
-                blit_text(self.screen, "ANECDOTI(poka proxoidsh igru)", (500,300),font_big)
-                blit_text(self.screen, anecdots[n_of_anecdote], (500,500),font)
                 n_of_anecdote += 1
             if(abs(dt_music) > 5000):
                 dt_music = 0
@@ -96,6 +102,7 @@ class Engine():
         self.scene = Scene(self)
 
     def gameOver(self):
+        self.start_time = time.time()
         self.screen.blit(self.bg_image,[0,0])
         self.scene = GameOverScene(self)
 
