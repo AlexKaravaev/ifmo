@@ -19,6 +19,13 @@ NPC_TEXTURE = pygame.transform.scale(NPC_TEXTURE, (CELL_WIDTH+TX_SCALE,CELL_HEIG
 GOAL_TEXTURE = pygame.image.load('monolit.png')
 #GOAL_TEXTURE = pygame.transform.scale(GOAL_TEXTURE, (CELL_WIDTH,CELL_HEIGHT))
 
+class AI(NPC):
+
+    def find_route(self):
+        pass
+
+
+
 class NPC(Object):
 
     def __init__(self, scene, x, y):

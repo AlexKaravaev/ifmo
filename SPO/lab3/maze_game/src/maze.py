@@ -25,7 +25,7 @@ class Maze:
 
     # Generate maze using DFS to find solution
     def __generateMaze(self):
-        
+
         cells = []
 
         visited_cells = []
@@ -55,10 +55,10 @@ class Maze:
                 new_cell = random.choice(neighbours)
 
                 wall_between = self.wallBetween(current_cell, new_cell)
-                
+
                 array = wall_between[0]
                 wall = wall_between[1]
-               
+
                 array[wall[0]][wall[1]] = False
 
                 cells.append(current_cell)
@@ -74,7 +74,7 @@ class Maze:
 
                 current_cell = cells[len(cells)-1]
                 cells.remove(current_cell)
-
+    
     def __findNeighbors(self, cell):
         neighbours = []
 
@@ -90,7 +90,7 @@ class Maze:
         if y < self.height - 1:
             neighbours.append((x,y+1))
 
-        return neighbours 
+        return neighbours
 
     def wallBetween(self,cell1, cell2):
         array = None
@@ -115,4 +115,3 @@ class Maze:
             else:
                 wall = cell2
         return (array, wall)
-
