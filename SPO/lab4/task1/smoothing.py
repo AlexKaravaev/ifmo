@@ -2,8 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 time = np.array([i for i in range(50)])
 
-# test
-
 def moving_average(input_list, n):
     plt.plot(time, input_list, 'ro-')
     filtered = [sum(input_list[i-n:i+n])/(2*n-1) for i in range(n,input_list.shape[0]-n)]
