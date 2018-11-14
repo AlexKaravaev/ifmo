@@ -1,8 +1,5 @@
 import numpy as np
 from preprocess import *
-import random
-import copy
-import sys
 import math
 
 def lin_correlation(x,y):
@@ -31,6 +28,7 @@ def check_correlation(data):
             exp_corr_matrix[i][j] = exp_correlation(data[:,i],data[:,j])
 
     return lin_corr_matrix, exp_corr_matrix
+
 if __name__ == '__main__':
     vals = preprocess()
     ans = check_correlation(vals)

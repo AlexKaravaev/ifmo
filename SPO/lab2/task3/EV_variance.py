@@ -1,7 +1,5 @@
 import numpy as np
 from preprocess import *
-import random
-import copy
 import sys
 
 def expected_value(data):
