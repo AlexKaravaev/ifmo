@@ -13,7 +13,7 @@ np.set_printoptions(threshold=np.inf)
 
 
 if __name__=="__main__":
-    img = cv2.imread('../img.jpeg', 0)
+    img = cv2.imread('./input/img.jpeg', 0)
     
     # Apply noise to input image
     gauss = random_noise(img, mode='gaussian', seed=None, clip=True)
