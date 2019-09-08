@@ -20,8 +20,16 @@ if __name__=="__main__":
 
     # Convert to CIE-LAB+
     img = xyz2lab(cv2.imread('./input/balls.jpg', 1))
-    #cv2.imwrite(dir_ + 'k_means.jpg', img_as_ubyte(slic(img, n_segments=117, max_iter=30, sigma=1, compactness=0.75,
-    #        multichannel=True)))
+    vectorized = img.reshape((-1, 3))
+    vectorized = np.float32(vectorized)
+    K = 3
+    attempts=10
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    ret,label,center=cv2.kmeans(vectorized,K,None,criteria,attempts,cv2.KMEANS_PP_CENTERS)  
+    center = np.uint8(center)
+    res = center[label.flatten()]
+    result_image = res.reshape((img.shape))
+    cv2.imwrite(dir_ + 'k_means.jpg', result_image)
 
     img = cv2.imread('./input/texture.jpeg', 0)
     
