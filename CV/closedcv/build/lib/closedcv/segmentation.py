@@ -33,3 +33,5 @@ def detect_face(img:np.ndarray, bounds: tuple=None) -> np.ndarray:
     skin = cv2.bitwise_and(img, img, mask = skinMask)
 
     return skin
+
+def 
