@@ -1,0 +1,4 @@
+<all>: lab4.mp
+<files>: lab4.mcp lab4.mcu
+lab4.mcu: lab4.asm
+lab4.mp: <files>
