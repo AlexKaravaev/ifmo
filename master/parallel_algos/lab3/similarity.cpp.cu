@@ -5,7 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#define TEST
+//#define TEST
+#define BLOCKSIZE 16
 
 using std::cout;
 using std::generate;
@@ -46,21 +47,30 @@ __global__ void similarity(const int *A, int *D, int w, int h)
     }
 }
 
+
 __global__ void similarity_shared(const int *A, int *D, int w, int h)
 {
     // Compute each thread's global row and column index
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int tx = threadIdx.x, ty = threadIdx.y;
 
     int temp_sum = 0;
     int diff = 0;
+
+    __shared__ float as[BLOCKSIZE][BLOCKSIZE];
+    __shared__ float as_pow[BLOCKSIZE][BLOCKSIZE];
 
     if ((row < h) && (col < h))
     {
         for (int k = 0; k < w; k++)
         {
-            diff = (A[row * w + k] - A[col * w + k]);
-            temp_sum += diff * diff;
+            as[tx][ty] = (A[row * w + k] - A[col * w + k]);
+            __syncthreads();
+            as_pow[tx][ty] = as[tx][ty]*as[tx][ty];
+            __syncthreads();
+            temp_sum += as_pow[tx][ty];
+            __syncthreads();
         }
         D[row * h + col] = temp_sum;
     }
@@ -148,10 +158,11 @@ int main()
 
 #ifdef TEST
     int THREADS = w;
-#else 
-    int THREADS = 32;
+    int BLOCKS  = h * w / THREADS;
+#else
+    int THREADS = 16;
+    int BLOCKS = BLOCKSIZE;
 #endif
-    int BLOCKS = h * w / THREADS;
 
     dim3 threads(THREADS, THREADS);
     dim3 blocks(BLOCKS, BLOCKS);
@@ -175,6 +186,28 @@ int main()
 
     std::cout << "\n";
 #endif
+
+    start = high_resolution_clock::now();
+    similarity_shared<<<blocks, threads>>>(d_a, d_d, w, h);
+    stop = high_resolution_clock::now();
+
+    duration = duration_cast<nanoseconds>(stop - start);
+    
+    gpuErrchk(cudaMemcpy(D.data(), d_d, d_bytes, cudaMemcpyDeviceToHost));
+
+    cout << "CUDA SHARED COMPLETED SUCCESSFULLY in " << duration.count() << " nanoseconds \n";
+#ifdef TEST
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < h; j++)
+            std::cout << D[i * h + j] << " ";
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+#endif
+
+
     start = high_resolution_clock::now();
     auto serial = similarity_serial(A, w, h);
     stop = high_resolution_clock::now();
